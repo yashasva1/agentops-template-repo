@@ -1,0 +1,337 @@
+{
+  "agent_id": "",
+  "channel": "voice",
+  "last_modification_timestamp": 1747557863986,
+  "agent_name": "BBQ Nation Assistant",
+  "response_engine": {
+    "type": "retell-llm",
+    "llm_id": "llm_5afb54dc01e2387b0767f0c7016f",
+    "version": 3
+  },
+  "webhook_url": "https://hook.eu2.make.com/ubnxlvrw8ow67bryfuoddki25darwi77",
+  "language": "en-US",
+  "opt_out_sensitive_data_storage": false,
+  "opt_in_signed_url": false,
+  "post_call_analysis_data": [
+    {
+      "type": "boolean",
+      "name": "booking_made",
+      "description": "Did the user complete a booking?"
+    },
+    {
+      "name": "call_summary",
+      "description": "Short summary of the call outcome.",
+      "type": "string",
+      "examples": [
+        "Customer Name: Aryamann Phone Number: 9876543210 Call Time (IST): 26th January 5:15:40 PM Call Outcome: Availability Booking Date: 2025-05-25 Booking Time: 19:00 Number of Guests: 4 Call Summary: Customer asked about dinner slot availability and successfully booked a table for 4 people on 25th May 2025 at 7:00 PM."
+      ]
+    },
+    {
+      "name": "call_type",
+      "description": "Types of Call",
+      "type": "enum",
+      "choices": [
+        "Booking",
+        "FAQ",
+        "Cancellation"
+      ]
+    }
+  ],
+  "version": 3,
+  "is_published": false,
+  "version_title": "",
+  "post_call_analysis_model": "gpt-4o-mini",
+  "voice_id": "11labs-Amritanshu",
+  "max_call_duration_ms": 3600000,
+  "interruption_sensitivity": 0.9,
+  "voicemail_detection_timeout_ms": 30000,
+  "allow_user_dtmf": true,
+  "user_dtmf_options": {},
+  "retellLlmData": {
+    "llm_id": "llm_5afb54dc01e2387b0767f0c7016f",
+    "version": 3,
+    "model": "gpt-4.1",
+    "states": [
+      {
+        "name": "WelcomeState",
+        "state_prompt": "{# WELCOME STATE #}\n## OBJECTIVE: Greet and identify intent\n## INSTRUCTIONS:\n1. Greet warmly: \"Welcome to Barbeque Nation! How can I assist you today?\"\n2. Classify intent using {{intent_classifier_tool}}:\n   - If FAQ: Transition to FAQState\n   - If booking: Transition to BookingState\n   - If unclear: \"Are you looking to book or have questions about our outlets?\"\n\n## PROHIBITED:\n- Mentioning prices\n- Assuming user intent\n",
+        "edges": [],
+        "tools": []
+      },
+      {
+        "name": "FAQState",
+        "state_prompt": "## OBJECTIVE:\n- Inform the customer about their query using the knowledge base API.\n\n## Instructions:\n1. Trigger the {{knowledge_base_api_tool}} with the user's query and property/city context.\n2. If the API returns a valid answer, inform the customer: \"{{api_response}}\"\n3. If the API does not return a valid answer, apologize and transition to FallbackState.\n4. After answering, ask if the customer needs further assistance.\n\n## Prohibited Actions:\n- Do not answer questions outside the knowledge base.\n- Do not provide property prices.\n\n## Transition Rules:\n- If the user wants to book, transition to BookingState.\n- If the user wants to update/cancel, transition to UpdateBookingState.\n- If the user says \"no\" or \"thank you\", transition to GoodbyeState.\n- If the answer is not found, transition to FallbackState.\n",
+        "edges": [],
+        "tools": [
+          {
+            "execution_message_description": "The message you will say to user when calling this tool. Make sure it fits into the conversation smoothly. Do not use a question. Use everyday language.",
+            "speak_after_execution": true,
+            "name": "knowledge_base_api_tool",
+            "description": "Describe what this function does",
+            "type": "custom",
+            "speak_during_execution": true,
+            "parameters": {
+              "type": "object",
+              "properties": {
+                "property": {
+                  "type": "string",
+                  "description": "The property, area, or city the user is asking about (e.g., Delhi, Bangalore)"
+                },
+                "query": {
+                  "type": "string",
+                  "description": "The user's question or query"
+                }
+              },
+              "required": [
+                "query",
+                "property"
+              ]
+            },
+            "url": "https://barbeque-knowledge-base-1.onrender.com/faq"
+          }
+        ]
+      },
+      {
+        "name": "BookingState",
+        "state_prompt": "## OBJECTIVE:\n- Collect booking details: name, phone, date, city/property.\n\n## Instructions:\n1. Ask for the customer's name. Use {{collect_name_tool}}.\n2. Ask for the customer's 10-digit phone number. Use {{validate_phone_number_tool}}.\n3. Ask for the date of booking (DD-MM-YYYY). Use {{validate_date_tool}}.\n4. Ask for the city or property. Use {{collect_city_tool}}.\n5. Confirm all details: \"To confirm, your name is {{name}}, phone number is {{phone}}, booking for {{date}} at {{city}}. Is this correct?\"\n6. If confirmed, trigger {{create_booking_tool}} and inform the customer of success, then transition to GoodbyeState.\n7. If not confirmed, allow correction and repeat confirmation.\n\n## Prohibited Actions:\n- Do not accept incomplete or invalid details.\n- Do not proceed without confirmation.\n\n## Transition Rules:\n- If details are confirmed, transition to GoodbyeState.\n- If the user wants to cancel, transition to UpdateBookingState.\n- If the user refuses, transition to FallbackState.\n",
+        "edges": [],
+        "tools": [
+          {
+            "execution_message_description": "The message you will say to user when calling this tool. Make sure it fits into the conversation smoothly. Do not use a question. Use everyday language.",
+            "speak_after_execution": true,
+            "name": "collect_name_tool",
+            "description": "collects the name of the user",
+            "type": "custom",
+            "speak_during_execution": true,
+            "parameters": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "description": "The customer's full name"
+                }
+              },
+              "required": [
+                "name"
+              ]
+            },
+            "url": "https://bbq-booking-tools.onrender.com/collect-name"
+          },
+          {
+            "execution_message_description": "The message you will say to user when calling this tool. Make sure it fits into the conversation smoothly. Do not use a question. Use everyday language.",
+            "speak_after_execution": true,
+            "name": "validate_phone_number_tool",
+            "description": "Validate the phone number",
+            "type": "custom",
+            "speak_during_execution": true,
+            "parameters": {
+              "type": "object",
+              "properties": {
+                "phone_number": {
+                  "type": "string",
+                  "description": "10-digit Indian phone number"
+                }
+              },
+              "required": [
+                "phone_number"
+              ]
+            },
+            "url": "https://bbq-booking-tools.onrender.com/validate-phone"
+          },
+          {
+            "execution_message_description": "The message you will say to user when calling this tool. Make sure it fits into the conversation smoothly. Do not use a question. Use everyday language.",
+            "speak_after_execution": true,
+            "name": "validate_date_tool",
+            "description": "Validates the date provided",
+            "type": "custom",
+            "speak_during_execution": true,
+            "parameters": {
+              "type": "object",
+              "properties": {
+                "date": {
+                  "type": "string",
+                  "description": "Date in DD-MM-YYYY format"
+                }
+              },
+              "required": [
+                "date"
+              ]
+            },
+            "url": "https://bbq-booking-tools.onrender.com/validate-date"
+          },
+          {
+            "execution_message_description": "The message you will say to user when calling this tool. Make sure it fits into the conversation smoothly. Do not use a question. Use everyday language.",
+            "speak_after_execution": true,
+            "name": "collect_city_tool",
+            "description": "collect the city",
+            "type": "custom",
+            "speak_during_execution": true,
+            "parameters": {
+              "type": "object",
+              "properties": {
+                "city": {
+                  "type": "string",
+                  "description": "City or property name"
+                }
+              },
+              "required": [
+                "city"
+              ]
+            },
+            "url": "https://bbq-booking-tools.onrender.com/validate-city"
+          },
+          {
+            "execution_message_description": "The message you will say to user when calling this tool. Make sure it fits into the conversation smoothly. Do not use a question. Use everyday language.",
+            "speak_after_execution": true,
+            "name": "create_booking_tool",
+            "description": "Create the booking with the information got",
+            "type": "custom",
+            "speak_during_execution": true,
+            "parameters": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "description": "The customer's full name"
+                },
+                "property": {
+                  "type": "string",
+                  "description": "The property or city for the booking"
+                },
+                "date": {
+                  "type": "string",
+                  "description": "Booking date in DD-MM-YYYY format"
+                },
+                "phone_number": {
+                  "type": "string",
+                  "description": "10-digit Indian phone number"
+                }
+              },
+              "required": [
+                "name",
+                "phone_number",
+                "property",
+                "date"
+              ]
+            },
+            "url": "https://bbq-booking-tools.onrender.com/create-booking"
+          }
+        ]
+      },
+      {
+        "name": "UpdateBookingState",
+        "state_prompt": "## OBJECTIVE:\n- Update or cancel an existing booking.\n\n## Instructions:\n1. Ask for the booking reference or phone number. Use {{validate_phone_number_tool}} if phone is provided.\n2. Ask if the customer wants to reschedule or cancel.\n3. If rescheduling, ask for the new date (use {{validate_date_tool}}), then trigger {{update_booking_tool}}.\n4. If cancelling, trigger {{cancel_booking_tool}}.\n5. Confirm the action and inform the customer.\n6. Transition to GoodbyeState.\n\n## Prohibited Actions:\n- Do not proceed without a valid reference or phone.\n- Do not reschedule to an invalid date.\n\n## Transition Rules:\n- On successful update/cancel, transition to GoodbyeState.\n- If the user wants to book again, transition to BookingState.\n- If the reference is invalid, transition to FallbackState.\n",
+        "edges": [],
+        "tools": [
+          {
+            "execution_message_description": "The message you will say to user when calling this tool. Make sure it fits into the conversation smoothly. Do not use a question. Use everyday language.",
+            "speak_after_execution": true,
+            "name": "validate_phone_number_tool",
+            "description": "validates the phone number",
+            "type": "custom",
+            "speak_during_execution": true,
+            "parameters": {
+              "type": "object",
+              "properties": {
+                "phone_number": {
+                  "type": "string",
+                  "description": "10-digit Indian phone number"
+                }
+              },
+              "required": [
+                "phone_number"
+              ]
+            },
+            "url": "https://bbq-booking-tools.onrender.com/validate-phone"
+          },
+          {
+            "execution_message_description": "The message you will say to user when calling this tool. Make sure it fits into the conversation smoothly. Do not use a question. Use everyday language.",
+            "speak_after_execution": true,
+            "name": "validate_date_tool",
+            "description": "Validate the date",
+            "type": "custom",
+            "speak_during_execution": true,
+            "parameters": {
+              "type": "object",
+              "properties": {
+                "date": {
+                  "type": "string",
+                  "description": "Date in DD-MM-YYYY format"
+                }
+              },
+              "required": [
+                "date"
+              ]
+            },
+            "url": "https://bbq-booking-tools.onrender.com/validate-date"
+          },
+          {
+            "execution_message_description": "The message you will say to user when calling this tool. Make sure it fits into the conversation smoothly. Do not use a question. Use everyday language.",
+            "speak_after_execution": true,
+            "name": "update_booking_tool",
+            "description": "update the date",
+            "type": "custom",
+            "speak_during_execution": true,
+            "parameters": {
+              "type": "object",
+              "properties": {
+                "booking_id": {
+                  "type": "string",
+                  "description": "The unique booking reference ID"
+                },
+                "new_date": {
+                  "type": "string",
+                  "description": "New booking date in DD-MM-YYYY format"
+                }
+              },
+              "required": [
+                "booking_id",
+                "new_date"
+              ]
+            },
+            "url": "https://bbq-booking-tools.onrender.com/update-booking"
+          },
+          {
+            "execution_message_description": "The message you will say to user when calling this tool. Make sure it fits into the conversation smoothly. Do not use a question. Use everyday language.",
+            "speak_after_execution": true,
+            "name": "cancel_booking_tool",
+            "description": "Cancels the already done booking",
+            "type": "custom",
+            "speak_during_execution": true,
+            "parameters": {
+              "type": "object",
+              "properties": {
+                "booking_id": {
+                  "type": "string",
+                  "description": "The unique booking reference ID"
+                }
+              },
+              "required": [
+                "booking_id"
+              ]
+            },
+            "url": "https://bbq-booking-tools.onrender.com/cancel-booking"
+          }
+        ]
+      },
+      {
+        "name": "FallbackState",
+        "state_prompt": "## OBJECTIVE:\n- Handle unrecognized queries or errors gracefully.\n\n## Instructions:\n1. Apologize: \"I'm sorry, I couldn't find that information.\"\n2. Offer to connect to a human agent or to try again.\n3. If the user wants to try again, transition to WelcomeState.\n4. If the user says \"no\", transition to GoodbyeState.\n\n## Prohibited Actions:\n- Do not guess or make up information.\n\n## Transition Rules:\n- If the user wants to try again, transition to WelcomeState.\n- If the user is done, transition to GoodbyeState.\n",
+        "edges": [],
+        "tools": []
+      },
+      {
+        "name": "GoodbyeState",
+        "state_prompt": "## OBJECTIVE:\n- End the conversation politely.\n\n## Instructions:\n1. Thank the customer: \"Thank you for calling Barbeque Nation. Have a great day!\"\n2. End the call.\n\n## Prohibited Actions:\n- Do not collect further information.\n- Do not restart the conversation.\n\n## Transition Rules:\n- End the session.\n",
+        "edges": [],
+        "tools": []
+      }
+    ],
+    "starting_state": "WelcomeState",
+    "knowledge_base_ids": [],
+    "last_modification_timestamp": 1747557324888,
+    "is_published": false
+  },
+  "conversationFlow": null,
+  "llmURL": null
+}
