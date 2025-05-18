@@ -15,7 +15,12 @@ Endpoints:
 3) Chatbot link: https://agency-iohm32.chat-dash.com/prototype/6829ab75079fdb17d5ac0398 (have used chat dash if its saying error occureed because during the testing i already used major credits of retell AI and as for running its asking for payment now)
 4) Chatbot ui link: https://yashasva1.github.io/chatbotui/  (made a basic ui if has more time would have used react with better interaction ui but due to time limitation i had to submit this only)
 5) Agent Linked phone number : +1(320)335-8966 (by mistake forgot to add the area code and it assigned me automically this and now for changing it is asking payments please understand my situation i have tried my best to give access to all the resources in the git)
-Im explaining all the files i have added here please see into my efforts and consider my request as everything was working untill the last moment the free credits got finished and it supporting because of free account you can look into the codes
+6) I'm also attaching some of the recordings between me and the chatbot that was saved on chatdash, this shows that the AI was woking perfectly according to the knowledge base provided.
+
+
+
+
+I'm explaining all the files i have added here please see into my efforts and consider my request as everything was working untill the last moment the free credits got finished and it supporting because of free account you can look into the codes
 the chatbot ui folder contains the index.html file that is linked to chatdash account for making the widget of the chatbot
 the knowledgebase contains the cleaned data that was obtained from the files and its implementation as endpoints
 the bbq booking tools contains the different end points that were used in different state and their transtion such as welcomestate,bookingstate,updatebookingsate and etc
